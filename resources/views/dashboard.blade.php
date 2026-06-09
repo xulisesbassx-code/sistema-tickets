@@ -72,6 +72,26 @@
 
         </div>
 
+        @if(auth()->user()->rol == 'admin')
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card bg-dark text-white shadow">
+
+                <div class="card-body">
+
+                    <h5>Total Usuarios</h5>
+
+                    <h2>{{ $totalUsuarios }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @endif
+
     </div>
 
     <div class="card shadow mt-4">
@@ -92,6 +112,8 @@
 
                         <th>ID</th>
                         <th>Título</th>
+                        <th>Usuario</th>
+                        <th>Técnico</th>
                         <th>Estado</th>
                         <th>Prioridad</th>
                         <th>Fecha</th>
@@ -102,13 +124,21 @@
 
                 <tbody>
 
-                    @foreach($ultimosTickets as $ticket)
+                    @forelse($ultimosTickets as $ticket)
 
                     <tr>
 
                         <td>{{ $ticket->id }}</td>
 
                         <td>{{ $ticket->titulo }}</td>
+
+                        <td>
+                            {{ $ticket->usuario->name ?? 'N/A' }}
+                        </td>
+
+                        <td>
+                            {{ $ticket->tecnico->name ?? 'Sin asignar' }}
+                        </td>
 
                         <td>
 
@@ -121,7 +151,7 @@
                             @elseif($ticket->estado == 'proceso')
 
                                 <span class="badge bg-warning text-dark">
-                                    Proceso
+                                    En proceso
                                 </span>
 
                             @elseif($ticket->estado == 'resuelto')
@@ -130,10 +160,16 @@
                                     Resuelto
                                 </span>
 
-                            @else
+                            @elseif($ticket->estado == 'revision')
+
+                                <span class="badge bg-info">
+                                    Revisión
+                                </span>
+
+                            @elseif($ticket->estado == 'cerrado')
 
                                 <span class="badge bg-secondary">
-                                    {{ $ticket->estado }}
+                                    Cerrado
                                 </span>
 
                             @endif
@@ -154,10 +190,16 @@
                                     Alta
                                 </span>
 
+                            @elseif($ticket->prioridad == 'media')
+
+                                <span class="badge bg-primary">
+                                    Media
+                                </span>
+
                             @else
 
-                                <span class="badge bg-info">
-                                    {{ $ticket->prioridad }}
+                                <span class="badge bg-success">
+                                    Baja
                                 </span>
 
                             @endif
@@ -165,14 +207,22 @@
                         </td>
 
                         <td>
-
                             {{ $ticket->created_at->format('d/m/Y H:i') }}
-
                         </td>
 
                     </tr>
 
-                    @endforeach
+                    @empty
+
+                    <tr>
+
+                        <td colspan="7" class="text-center">
+                            No hay tickets registrados.
+                        </td>
+
+                    </tr>
+
+                    @endforelse
 
                 </tbody>
 

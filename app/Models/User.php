@@ -52,4 +52,18 @@ class User extends Authenticatable
 {
     return $this->hasMany(Ticket::class);
 }
+public function esAdministrador()
+{
+    return $this->rol === 'administrador';
+}
+
+public function esTecnico()
+{
+    return $this->rol === 'tecnico';
+}
+
+public function esUsuario()
+{
+    return $this->rol === 'usuario';
+}
 }

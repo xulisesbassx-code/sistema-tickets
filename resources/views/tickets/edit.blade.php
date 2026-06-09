@@ -5,48 +5,51 @@
     <div class="card shadow">
 
         <div class="card-header">
-
             <h3>Editar Ticket</h3>
-
         </div>
 
         <div class="card-body">
 
-            <form action="{{ route('tickets.update', $ticket) }}"
-                  method="POST">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('tickets.update', $ticket) }}" method="POST">
 
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
-
-                    <label>Título</label>
-
-                    <input type="text"
-                           name="titulo"
-                           class="form-control"
-                           value="{{ $ticket->titulo }}"
-                           required>
-
+                    <label class="form-label">Título</label>
+                    <input
+                        type="text"
+                        name="titulo"
+                        class="form-control"
+                        value="{{ old('titulo', $ticket->titulo) }}"
+                        required
+                    >
                 </div>
 
                 <div class="mb-3">
-
-                    <label>Descripción</label>
-
-                    <textarea name="descripcion"
-                              class="form-control"
-                              rows="5"
-                              required>{{ $ticket->descripcion }}</textarea>
-
+                    <label class="form-label">Descripción</label>
+                    <textarea
+                        name="descripcion"
+                        class="form-control"
+                        rows="5"
+                        required
+                    >{{ old('descripcion', $ticket->descripcion) }}</textarea>
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Categoría</label>
 
-                    <label>Categoría</label>
-
-                    <select name="categoria"
-                            class="form-control">
+                    <select name="categoria" class="form-select">
 
                         <option value="hardware"
                             {{ $ticket->categoria == 'hardware' ? 'selected' : '' }}>
@@ -68,16 +71,18 @@
                             Red
                         </option>
 
-                    </select>
+                        <option value="otro"
+                            {{ $ticket->categoria == 'otro' ? 'selected' : '' }}>
+                            Otro
+                        </option>
 
+                    </select>
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Estado</label>
 
-                    <label>Estado</label>
-
-                    <select name="estado"
-                            class="form-control">
+                    <select name="estado" class="form-select">
 
                         <option value="nuevo"
                             {{ $ticket->estado == 'nuevo' ? 'selected' : '' }}>
@@ -105,15 +110,12 @@
                         </option>
 
                     </select>
-
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Prioridad</label>
 
-                    <label>Prioridad</label>
-
-                    <select name="prioridad"
-                            class="form-control">
+                    <select name="prioridad" class="form-select">
 
                         <option value="baja"
                             {{ $ticket->prioridad == 'baja' ? 'selected' : '' }}>
@@ -136,14 +138,43 @@
                         </option>
 
                     </select>
-
                 </div>
 
-                <button class="btn btn-success">
+                <div class="mb-3">
+                    <label class="form-label">Técnico asignado</label>
 
-                    Actualizar Ticket
+                    <select name="tecnico_id" class="form-select">
 
-                </button>
+                        <option value="">
+                            Sin asignar
+                        </option>
+
+                        @foreach($tecnicos as $tecnico)
+
+                            <option
+                                value="{{ $tecnico->id }}"
+                                {{ $ticket->tecnico_id == $tecnico->id ? 'selected' : '' }}
+                            >
+                                {{ $tecnico->name }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <button type="submit" class="btn btn-success">
+                        Actualizar Ticket
+                    </button>
+
+                    <a href="{{ route('tickets.index') }}"
+                       class="btn btn-secondary">
+                        Cancelar
+                    </a>
+
+                </div>
 
             </form>
 

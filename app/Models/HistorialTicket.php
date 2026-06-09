@@ -9,12 +9,10 @@ class HistorialTicket extends Model
     protected $table = 'historial_tickets';
 
     protected $fillable = [
-
         'ticket_id',
         'usuario_id',
         'accion',
         'descripcion'
-
     ];
 
     public function ticket()
