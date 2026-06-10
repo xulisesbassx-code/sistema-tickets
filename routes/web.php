@@ -38,11 +38,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/estadisticas', [App\Http\Controllers\EstadisticaController::class, 'index'])
     ->name('estadisticas');
+    Route::resource('usuarios', App\Http\Controllers\UsuarioController::class);
 
     // 🎫 Rutas de tickets (CORRECTO)
     Route::resource('tickets', TicketController::class);
 
-    
+
     Route::post('/tickets/{ticket}/comentarios',
     [ComentarioController::class, 'store'])
     ->name('comentarios.store');

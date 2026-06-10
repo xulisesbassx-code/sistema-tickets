@@ -118,6 +118,8 @@ class TicketController extends Controller
         $prioridadAnterior = $ticket->prioridad;
         $tecnicoAnterior = $ticket->tecnico_id;
 
+
+
         $ticket->update([
             'titulo' => $request->titulo,
             'descripcion' => $request->descripcion,
