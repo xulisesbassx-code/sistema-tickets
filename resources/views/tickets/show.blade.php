@@ -2,9 +2,11 @@
 
 <div class="container mt-4">
 
+    <!-- INFORMACIÓN DEL TICKET -->
+
     <div class="card shadow">
 
-        <div class="card-header d-flex justify-content-between">
+        <div class="card-header d-flex justify-content-between align-items-center">
 
             <h4>
                 Ticket #{{ $ticket->id }}
@@ -12,22 +14,26 @@
 
             <a href="{{ route('tickets.index') }}"
                class="btn btn-secondary">
-
-               Volver
-
+                Volver
             </a>
 
         </div>
 
         <div class="card-body">
 
-            <h3>{{ $ticket->titulo }}</h3>
+            <h3>
+                {{ $ticket->titulo }}
+            </h3>
 
             <p class="mt-3">
                 {{ $ticket->descripcion }}
             </p>
 
             <hr>
+
+            <h5 class="mb-3">
+                Información General
+            </h5>
 
             <div class="row">
 
@@ -37,7 +43,7 @@
 
                     <br>
 
-                    {{ $ticket->categoria }}
+                    {{ ucfirst($ticket->categoria) }}
 
                 </div>
 
@@ -48,7 +54,7 @@
                     <br>
 
                     <span class="badge bg-primary">
-                        {{ $ticket->estado }}
+                        {{ ucfirst($ticket->estado) }}
                     </span>
 
                 </div>
@@ -60,14 +66,14 @@
                     <br>
 
                     <span class="badge bg-danger">
-                        {{ $ticket->prioridad }}
+                        {{ ucfirst($ticket->prioridad) }}
                     </span>
 
                 </div>
 
                 <div class="col-md-3">
 
-                    <strong>Fecha:</strong>
+                    <strong>Fecha de Creación:</strong>
 
                     <br>
 
@@ -79,14 +85,37 @@
 
             <hr>
 
-            <a href="{{ route('tickets.edit', $ticket) }}"
-               class="btn btn-warning">
+            @if(auth()->user()->rol != 'usuario')
 
-               Editar Ticket
+<div class="row">
 
-            </a>
+    <div class="col-md-4">
 
-        </div>
+        <strong>Usuario que reportó:</strong>
+
+        <br>
+
+        {{ $ticket->usuario->name ?? 'N/A' }}
+
+    </div>
+
+    <div class="col-md-4">
+
+        <strong>Técnico asignado:</strong>
+
+        <br>
+
+        {{ $ticket->tecnico->name ?? 'Sin asignar' }}
+
+    </div>
+
+    <div class="col-md-4">
+
+        <strong>Última actualización:</strong>
+
+        <br>
+
+        {{ $ticket->updated_at->format('d/m/Y H:i') }}
 
     </div>
 
@@ -94,76 +123,178 @@
 
 <hr>
 
-<h4 class="mt-4">
-    Comentarios
-</h4>
+@endif
 
-<form action="{{ route('comentarios.store', $ticket) }}"
-      method="POST"
-      class="mb-4">
+            <hr>
 
-    @csrf
+           @if(auth()->user()->rol != 'usuario')
 
-    <div class="mb-3">
+<a href="{{ route('tickets.edit', $ticket) }}"
+   class="btn btn-warning">
+    Editar Ticket
+</a>
 
-        <textarea name="mensaje"
-                  class="form-control"
-                  rows="3"
-                  placeholder="Escribe un comentario..."
-                  required></textarea>
+@endif
+        </div>
 
     </div>
 
-    <button class="btn btn-primary">
+    <!-- COMENTARIOS -->
 
-        Agregar Comentario
+    <div class="mt-5">
 
-    </button>
+        <h4>
+            Comentarios del Ticket
+        </h4>
 
-</form>
+        <div class="card shadow">
 
-@forelse($ticket->comentarios as $comentario)
+            <div class="card-body">
 
-<div class="card mb-3 shadow-sm">
+                <form action="{{ route('comentarios.store', $ticket) }}"
+                      method="POST">
 
-    <div class="card-body">
+                    @csrf
 
-        <div class="d-flex justify-content-between">
+                    <div class="mb-3">
 
-            <strong>
+                        <label class="form-label">
+                            Nuevo comentario
+                        </label>
 
-                {{ $comentario->usuario->name }}
+                        <textarea
+                            name="mensaje"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Escribe un comentario..."
+                            required
+                        ></textarea>
 
-            </strong>
+                    </div>
 
-            <small>
+                    <button class="btn btn-primary">
 
-                {{ $comentario->created_at->format('d/m/Y H:i') }}
+                        Agregar Comentario
 
-            </small>
+                    </button>
+
+                </form>
+
+            </div>
 
         </div>
 
-        <hr>
+        <div class="mt-3">
 
-        <p class="mb-0">
+            @forelse($ticket->comentarios as $comentario)
 
-            {{ $comentario->mensaje }}
+            <div class="card mb-3 shadow-sm">
 
-        </p>
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <strong>
+
+                            {{ $comentario->usuario->name }}
+
+                        </strong>
+
+                        <small>
+
+                            {{ $comentario->created_at->format('d/m/Y H:i') }}
+
+                        </small>
+
+                    </div>
+
+                    <hr>
+
+                    <p class="mb-0">
+
+                        {{ $comentario->mensaje }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            @empty
+
+            <div class="alert alert-info">
+
+                No hay comentarios registrados.
+
+            </div>
+
+            @endforelse
+
+        </div>
+
+    </div>
+@if(auth()->user()->rol != 'usuario')
+    <!-- HISTORIAL -->
+
+    <div class="mt-5">
+
+        <h4>
+            Historial del Ticket
+        </h4>
+
+        @forelse($ticket->historial->sortByDesc('created_at') as $registro)
+
+        <div class="card mb-2 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>
+
+                        {{ $registro->accion }}
+
+                    </strong>
+
+                    <small>
+
+                        {{ $registro->created_at->format('d/m/Y H:i') }}
+
+                    </small>
+
+                </div>
+
+                <hr>
+
+                <p class="mb-1">
+
+                    {{ $registro->descripcion }}
+
+                </p>
+
+                <small class="text-muted">
+
+                    Realizado por:
+                    {{ $registro->usuario->name ?? 'Sistema' }}
+
+                </small>
+
+            </div>
+
+        </div>
+
+        @empty
+
+        <div class="alert alert-secondary">
+
+            No hay historial registrado para este ticket.
+
+        </div>
+
+        @endforelse
 
     </div>
 
 </div>
-
-@empty
-
-<div class="alert alert-info">
-
-    No hay comentarios todavía.
-
-</div>
-
-@endforelse
-
+@endif
 </x-app-layout>

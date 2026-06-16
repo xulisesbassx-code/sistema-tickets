@@ -11,7 +11,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // ADMIN
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
+        |--------------------------------------------------------------------------
+        */
         if ($user->rol == 'admin') {
 
             $ticketsNuevos = Ticket::where('estado', 'nuevo')->count();
@@ -20,29 +24,36 @@ class DashboardController extends Controller
 
             $ticketsResueltos = Ticket::where('estado', 'resuelto')->count();
 
+            $ticketsCerrados = Ticket::where('estado', 'cerrado')->count();
+
             $ticketsCriticos = Ticket::where('prioridad', 'critica')->count();
 
             $totalUsuarios = User::count();
 
             $ultimosTickets = Ticket::with([
-                'usuario',
-                'tecnico'
-            ])
-            ->latest()
-            ->take(5)
-            ->get();
+                    'usuario',
+                    'tecnico'
+                ])
+                ->latest()
+                ->take(5)
+                ->get();
 
             return view('dashboard', compact(
                 'ticketsNuevos',
                 'ticketsProceso',
                 'ticketsResueltos',
+                'ticketsCerrados',
                 'ticketsCriticos',
                 'totalUsuarios',
                 'ultimosTickets'
             ));
         }
 
-        // TECNICO
+        /*
+        |--------------------------------------------------------------------------
+        | TECNICO
+        |--------------------------------------------------------------------------
+        */
         if ($user->rol == 'tecnico') {
 
             $ticketsNuevos = Ticket::where('tecnico_id', $user->id)
@@ -62,13 +73,19 @@ class DashboardController extends Controller
                 ->count();
 
             $ultimosTickets = Ticket::with([
-                'usuario',
-                'tecnico'
-            ])
-            ->where('tecnico_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
+                    'usuario',
+                    'tecnico'
+                ])
+                ->where('tecnico_id', $user->id)
+                ->whereIn('estado', [
+                    'nuevo',
+                    'proceso',
+                    'revision',
+                    'resuelto'
+                ])
+                ->latest()
+                ->take(5)
+                ->get();
 
             return view('dashboard', compact(
                 'ticketsNuevos',
@@ -79,7 +96,11 @@ class DashboardController extends Controller
             ));
         }
 
-        // USUARIO
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIO
+        |--------------------------------------------------------------------------
+        */
         $ticketsNuevos = Ticket::where('user_id', $user->id)
             ->where('estado', 'nuevo')
             ->count();
@@ -89,7 +110,10 @@ class DashboardController extends Controller
             ->count();
 
         $ticketsResueltos = Ticket::where('user_id', $user->id)
-            ->where('estado', 'resuelto')
+            ->whereIn('estado', [
+                'resuelto',
+                'cerrado'
+            ])
             ->count();
 
         $ticketsCriticos = Ticket::where('user_id', $user->id)
@@ -97,13 +121,14 @@ class DashboardController extends Controller
             ->count();
 
         $ultimosTickets = Ticket::with([
-            'usuario',
-            'tecnico'
-        ])
-        ->where('user_id', $user->id)
-        ->latest()
-        ->take(5)
-        ->get();
+                'usuario',
+                'tecnico'
+            ])
+            ->where('user_id', $user->id)
+            ->where('estado', '!=', 'cerrado')
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('dashboard', compact(
             'ticketsNuevos',

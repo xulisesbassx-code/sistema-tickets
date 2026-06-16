@@ -4,14 +4,28 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <h2>Gestión de Tickets</h2>
+        <h2>
+            @if(auth()->user()->rol == 'usuario')
+                Mis Solicitudes
+            @else
+                Gestión de Tickets
+            @endif
+        </h2>
 
         <a href="{{ route('tickets.create') }}"
            class="btn btn-primary">
-            Nuevo Ticket
+
+            @if(auth()->user()->rol == 'usuario')
+                Solicitar Soporte
+            @else
+                Nuevo Ticket
+            @endif
+
         </a>
 
     </div>
+
+    @if(auth()->user()->rol != 'usuario')
 
     <!-- FILTROS -->
 
@@ -46,14 +60,9 @@
 
                         <label>Estado</label>
 
-                        <select
-                            name="estado"
-                            class="form-select"
-                        >
+                        <select name="estado" class="form-select">
 
-                            <option value="">
-                                Todos
-                            </option>
+                            <option value="">Todos</option>
 
                             <option value="nuevo"
                                 {{ request('estado') == 'nuevo' ? 'selected' : '' }}>
@@ -88,14 +97,9 @@
 
                         <label>Prioridad</label>
 
-                        <select
-                            name="prioridad"
-                            class="form-select"
-                        >
+                        <select name="prioridad" class="form-select">
 
-                            <option value="">
-                                Todas
-                            </option>
+                            <option value="">Todas</option>
 
                             <option value="baja"
                                 {{ request('prioridad') == 'baja' ? 'selected' : '' }}>
@@ -123,10 +127,8 @@
 
                     <div class="col-md-2 d-flex align-items-end mb-3">
 
-                        <button
-                            type="submit"
-                            class="btn btn-success me-2"
-                        >
+                        <button type="submit"
+                                class="btn btn-success me-2">
                             Buscar
                         </button>
 
@@ -145,12 +147,20 @@
 
     </div>
 
+    @endif
+
     <!-- TABLA -->
 
     <div class="card shadow">
 
         <div class="card-header">
-            Lista de Tickets
+
+            @if(auth()->user()->rol == 'usuario')
+                Mis Solicitudes
+            @else
+                Lista de Tickets
+            @endif
+
         </div>
 
         <div class="card-body">
@@ -166,8 +176,12 @@
                         <th>Categoría</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
-                        <th>Usuario</th>
-                        <th>Técnico</th>
+
+                        @if(auth()->user()->rol != 'usuario')
+                            <th>Usuario</th>
+                            <th>Técnico</th>
+                        @endif
+
                         <th>Acciones</th>
 
                     </tr>
@@ -189,29 +203,16 @@
                         <td>
 
                             @if($ticket->prioridad == 'critica')
-
-                                <span class="badge bg-danger">
-                                    Crítica
-                                </span>
+                                <span class="badge bg-danger">Crítica</span>
 
                             @elseif($ticket->prioridad == 'alta')
-
-                                <span class="badge bg-warning text-dark">
-                                    Alta
-                                </span>
+                                <span class="badge bg-warning text-dark">Alta</span>
 
                             @elseif($ticket->prioridad == 'media')
-
-                                <span class="badge bg-primary">
-                                    Media
-                                </span>
+                                <span class="badge bg-primary">Media</span>
 
                             @else
-
-                                <span class="badge bg-success">
-                                    Baja
-                                </span>
-
+                                <span class="badge bg-success">Baja</span>
                             @endif
 
                         </td>
@@ -219,38 +220,24 @@
                         <td>
 
                             @if($ticket->estado == 'nuevo')
-
-                                <span class="badge bg-primary">
-                                    Nuevo
-                                </span>
+                                <span class="badge bg-primary">Nuevo</span>
 
                             @elseif($ticket->estado == 'proceso')
-
-                                <span class="badge bg-warning text-dark">
-                                    En Proceso
-                                </span>
+                                <span class="badge bg-warning text-dark">En Proceso</span>
 
                             @elseif($ticket->estado == 'revision')
-
-                                <span class="badge bg-info">
-                                    Revisión
-                                </span>
+                                <span class="badge bg-info">Revisión</span>
 
                             @elseif($ticket->estado == 'resuelto')
-
-                                <span class="badge bg-success">
-                                    Resuelto
-                                </span>
+                                <span class="badge bg-success">Resuelto</span>
 
                             @else
-
-                                <span class="badge bg-secondary">
-                                    Cerrado
-                                </span>
-
+                                <span class="badge bg-secondary">Cerrado</span>
                             @endif
 
                         </td>
+
+                        @if(auth()->user()->rol != 'usuario')
 
                         <td>
                             {{ $ticket->usuario->name ?? 'N/A' }}
@@ -260,19 +247,44 @@
                             {{ $ticket->tecnico->name ?? 'Sin asignar' }}
                         </td>
 
-                        <td>
+                        @endif
 
-                            <a href="{{ route('tickets.show', $ticket) }}"
-                               class="btn btn-info btn-sm">
-                                Ver
-                            </a>
+                    <td>
 
-                            <a href="{{ route('tickets.edit', $ticket) }}"
-                               class="btn btn-warning btn-sm">
-                                Editar
-                            </a>
+    <a href="{{ route('tickets.show', $ticket) }}"
+       class="btn btn-info btn-sm">
+        Ver
+    </a>
 
-                        </td>
+    @if(auth()->user()->rol != 'usuario')
+
+        <a href="{{ route('tickets.edit', $ticket) }}"
+           class="btn btn-warning btn-sm">
+            Editar
+        </a>
+
+    @endif
+
+    @if(auth()->user()->rol == 'admin')
+
+        <form action="{{ route('tickets.destroy', $ticket) }}"
+              method="POST"
+              style="display:inline;">
+
+            @csrf
+            @method('DELETE')
+
+            <button type="submit"
+                    class="btn btn-danger btn-sm"
+                    onclick="return confirm('¿Cerrar este ticket?')">
+                Cerrar
+            </button>
+
+        </form>
+
+    @endif
+
+</td>
 
                     </tr>
 
@@ -280,8 +292,11 @@
 
                     <tr>
 
-                        <td colspan="8" class="text-center">
+                        <td colspan="8"
+                            class="text-center">
+
                             No se encontraron tickets.
+
                         </td>
 
                     </tr>

@@ -42,12 +42,14 @@
 
                 @endif
 
+@if(auth()->user()->rol == 'admin')
                 <x-nav-link
                     :href="route('estadisticas')"
                     :active="request()->routeIs('estadisticas')"
                 >
                     Estadísticas
                 </x-nav-link>
+@endif
 
                 @if(auth()->user()->rol == 'admin')
 
@@ -195,11 +197,13 @@
 
         @endif
 
+@if(auth()->user()->rol == 'admin')
         <x-responsive-nav-link
             :href="route('estadisticas')"
         >
             Estadísticas
         </x-responsive-nav-link>
+@endif
 
         @if(auth()->user()->rol == 'admin')
 

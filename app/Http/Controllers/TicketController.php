@@ -9,14 +9,45 @@ use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
-   public function index(Request $request)
+  public function index(Request $request)
 {
+    $user = auth()->user();
+
     $query = Ticket::with([
         'usuario',
         'tecnico'
     ]);
 
+    if ($user->rol == 'usuario') {
+
+        $query->where(
+            'user_id',
+            $user->id
+        );
+
+    } elseif ($user->rol == 'tecnico') {
+
+        $query->where(
+            'tecnico_id',
+            $user->id
+        )
+        ->where(
+            'estado',
+            '!=',
+            'cerrado'
+        );
+
+    } else {
+
+        $query->where(
+            'estado',
+            '!=',
+            'cerrado'
+        );
+    }
+
     if ($request->titulo) {
+
         $query->where(
             'titulo',
             'like',
@@ -25,6 +56,7 @@ class TicketController extends Controller
     }
 
     if ($request->estado) {
+
         $query->where(
             'estado',
             $request->estado
@@ -32,6 +64,7 @@ class TicketController extends Controller
     }
 
     if ($request->prioridad) {
+
         $query->where(
             'prioridad',
             $request->prioridad
@@ -81,117 +114,168 @@ class TicketController extends Controller
             ->route('tickets.index')
             ->with('success', 'Ticket creado correctamente');
     }
+//show muestra el detalle del ticket, incluyendo comentarios e historial
+public function show(Ticket $ticket)
+{
+    $user = auth()->user();
 
-    public function show(Ticket $ticket)
-    {
-        $ticket->load([
-            'comentarios.usuario',
-            'historial.usuario',
-            'usuario',
-            'tecnico'
-        ]);
-
-        return view('tickets.show', compact('ticket'));
+    if (
+        $user->rol == 'usuario' &&
+        $ticket->user_id != $user->id
+    ) {
+        abort(403);
     }
 
-    public function edit(Ticket $ticket)
-    {
-        $tecnicos = User::where('rol', 'tecnico')->get();
-
-        return view(
-            'tickets.edit',
-            compact('ticket', 'tecnicos')
-        );
+    if (
+        $user->rol == 'tecnico' &&
+        $ticket->tecnico_id != $user->id
+    ) {
+        abort(403);
     }
 
-    public function update(Request $request, Ticket $ticket)
-    {
-        $request->validate([
-            'titulo' => 'required',
-            'descripcion' => 'required',
-            'categoria' => 'required',
-            'estado' => 'required',
-            'prioridad' => 'required'
+    $ticket->load([
+        'comentarios.usuario',
+        'historial.usuario',
+        'usuario',
+        'tecnico'
+    ]);
+
+    return view('tickets.show', compact('ticket'));
+}
+
+   public function edit(Ticket $ticket)
+{
+    $user = auth()->user();
+
+    if ($user->rol == 'usuario') {
+        abort(403);
+    }
+
+    if (
+        $user->rol == 'tecnico' &&
+        $ticket->tecnico_id != $user->id
+    ) {
+        abort(403);
+    }
+
+    $tecnicos = User::where('rol', 'tecnico')->get();
+
+    return view(
+        'tickets.edit',
+        compact('ticket', 'tecnicos')
+    );
+}
+
+   public function update(Request $request, Ticket $ticket)
+{
+    $user = auth()->user();
+
+    if ($user->rol == 'usuario') {
+        abort(403);
+    }
+
+    if (
+        $user->rol == 'tecnico' &&
+        $ticket->tecnico_id != $user->id
+    ) {
+        abort(403);
+    }
+
+    $request->validate([
+        'titulo' => 'required',
+        'descripcion' => 'required',
+        'categoria' => 'required',
+        'estado' => 'required',
+        'prioridad' => 'required'
+    ]);
+
+    $estadoAnterior = $ticket->estado;
+    $prioridadAnterior = $ticket->prioridad;
+    $tecnicoAnterior = $ticket->tecnico_id;
+
+    $ticket->update([
+        'titulo' => $request->titulo,
+        'descripcion' => $request->descripcion,
+        'categoria' => $request->categoria,
+        'estado' => $request->estado,
+        'prioridad' => $request->prioridad,
+        'tecnico_id' => $request->tecnico_id
+    ]);
+
+    if ($estadoAnterior != $ticket->estado) {
+
+        HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => auth()->id(),
+            'accion' => 'Cambio de estado',
+            'descripcion' => "Estado cambiado de '{$estadoAnterior}' a '{$ticket->estado}'"
         ]);
+    }
 
-        $estadoAnterior = $ticket->estado;
-        $prioridadAnterior = $ticket->prioridad;
-        $tecnicoAnterior = $ticket->tecnico_id;
+    if ($prioridadAnterior != $ticket->prioridad) {
 
-
-
-        $ticket->update([
-            'titulo' => $request->titulo,
-            'descripcion' => $request->descripcion,
-            'categoria' => $request->categoria,
-            'estado' => $request->estado,
-            'prioridad' => $request->prioridad,
-            'tecnico_id' => $request->tecnico_id
+        HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => auth()->id(),
+            'accion' => 'Cambio de prioridad',
+            'descripcion' => "Prioridad cambiada de '{$prioridadAnterior}' a '{$ticket->prioridad}'"
         ]);
+    }
 
-        if ($estadoAnterior != $ticket->estado) {
+    if ($tecnicoAnterior != $ticket->tecnico_id) {
 
-            HistorialTicket::create([
-                'ticket_id' => $ticket->id,
-                'usuario_id' => auth()->id(),
-                'accion' => 'Cambio de estado',
-                'descripcion' => "Estado cambiado de '{$estadoAnterior}' a '{$ticket->estado}'"
-            ]);
+        $nombreTecnico = 'Sin asignar';
+
+        if ($ticket->tecnico) {
+            $nombreTecnico = $ticket->tecnico->name;
         }
 
-        if ($prioridadAnterior != $ticket->prioridad) {
-
-            HistorialTicket::create([
-                'ticket_id' => $ticket->id,
-                'usuario_id' => auth()->id(),
-                'accion' => 'Cambio de prioridad',
-                'descripcion' => "Prioridad cambiada de '{$prioridadAnterior}' a '{$ticket->prioridad}'"
-            ]);
-        }
-
-        if ($tecnicoAnterior != $ticket->tecnico_id) {
-
-            $nombreTecnico = 'Sin asignar';
-
-            if ($ticket->tecnico) {
-                $nombreTecnico = $ticket->tecnico->name;
-            }
-
-            HistorialTicket::create([
-                'ticket_id' => $ticket->id,
-                'usuario_id' => auth()->id(),
-                'accion' => 'Asignación de técnico',
-                'descripcion' => "Ticket asignado a {$nombreTecnico}"
-            ]);
-        }
-
-        return redirect()
-            ->route('tickets.index')
-            ->with('success', 'Ticket actualizado correctamente');
+        HistorialTicket::create([
+            'ticket_id' => $ticket->id,
+            'usuario_id' => auth()->id(),
+            'accion' => 'Asignación de técnico',
+            'descripcion' => "Ticket asignado a {$nombreTecnico}"
+        ]);
     }
 
-    public function destroy(Ticket $ticket)
-    {
-        $ticket->delete();
+    return redirect()
+        ->route('tickets.index')
+        ->with('success', 'Ticket actualizado correctamente');
+}
 
-        return redirect()
-            ->route('tickets.index')
-            ->with('success', 'Ticket eliminado correctamente');
+   public function destroy(Ticket $ticket)
+{
+    $user = auth()->user();
+
+    // Solo Admin puede cerrar tickets
+    if ($user->rol != 'admin') {
+        abort(403);
     }
+
+    $ticket->update([
+        'estado' => 'cerrado'
+    ]);
+
+    HistorialTicket::create([
+        'ticket_id' => $ticket->id,
+        'usuario_id' => auth()->id(),
+        'accion' => 'Cierre de ticket',
+        'descripcion' => 'El ticket fue cerrado por el administrador'
+    ]);
+
+    return redirect()
+        ->route('tickets.index')
+        ->with('success', 'Ticket cerrado correctamente');
+}
 
     public function misTickets()
     {
-        $tickets = Ticket::with([
-            'usuario',
-            'tecnico'
-        ])
+       $tickets = Ticket::with(['usuario','tecnico'])
         ->where('tecnico_id', auth()->id())
+        ->where('estado', '!=', 'cerrado')
         ->latest()
         ->get();
 
-        return view(
-            'tickets.mis-tickets',
-            compact('tickets')
-        );
+    return view('tickets.mis-tickets', compact('tickets'));
     }
 }
