@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use App\Models\HistorialTicket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class TicketController extends Controller
 {
@@ -85,8 +86,10 @@ class TicketController extends Controller
     {
         return view('tickets.create');
     }
+//store se encarga de validar y guardar el nuevo ticket en la base de datos, además de registrar la acción en el historial
 
-    public function store(Request $request)
+public function store(Request $request)
+
     {
         $request->validate([
             'titulo' => 'required',
@@ -104,11 +107,26 @@ class TicketController extends Controller
         ]);
 
         HistorialTicket::create([
-            'ticket_id' => $ticket->id,
-            'usuario_id' => auth()->id(),
-            'accion' => 'Creación de ticket',
-            'descripcion' => 'El ticket fue creado'
-        ]);
+    'ticket_id' => $ticket->id,
+    'usuario_id' => auth()->id(),
+    'accion' => 'Creación de ticket',
+    'descripcion' => 'El ticket fue creado'
+]);
+
+try {
+
+    Http::post('http://127.0.0.1:3001/nuevo-ticket', [
+        'id' => $ticket->id,
+        'titulo' => $ticket->titulo,
+        'usuario' => auth()->user()->name,
+        'estado' => $ticket->estado
+    ]);
+
+} catch (\Exception $e) {
+
+}
+
+
 
         return redirect()
             ->route('tickets.index')

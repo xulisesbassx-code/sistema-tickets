@@ -42,6 +42,18 @@
 
                 @endif
 
+                @if(auth()->user()->rol != 'usuario')
+
+<x-nav-link
+    :href="route('servicios-rapidos.index')"
+    :active="request()->routeIs('servicios-rapidos.*')">
+
+    Servicios Rápidos
+
+</x-nav-link>
+
+@endif
+
 @if(auth()->user()->rol == 'admin')
                 <x-nav-link
                     :href="route('estadisticas')"

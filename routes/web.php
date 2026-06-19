@@ -95,3 +95,15 @@ Route::middleware(['auth', 'role:usuario'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+
+/*
+|--------------------------------------------------------------------------
+| SOLO SERVICIOS RÁPIDOS
+|--------------------------------------------------------------------------
+*/
+
+Route::resource(
+    'servicios-rapidos',
+    App\Http\Controllers\ServicioRapidoController::class
+);
