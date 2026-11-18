@@ -79,29 +79,37 @@
                             {{ $servicio->tipo_equipo }}
                         </td>
 
-                        <td>
+                       <td>
 
-                            @if($servicio->resultado == 'resuelto')
+    @if($servicio->resultado == 'resuelto')
 
-                                <span class="badge bg-success">
-                                    Resuelto
-                                </span>
+        <span class="badge bg-success">
+            Resuelto
+        </span>
 
-                            @elseif($servicio->resultado == 'parcial')
+    @elseif($servicio->resultado == 'parcial')
 
-                                <span class="badge bg-warning text-dark">
-                                    Parcial
-                                </span>
+        <span class="badge bg-warning text-dark">
+            Parcial
+        </span>
 
-                            @else
+    @else
 
-                                <span class="badge bg-danger">
-                                    Pendiente
-                                </span>
+        <span class="badge bg-danger">
+            Pendiente
+        </span>
 
-                            @endif
+    @endif
 
-                      <td>
+</td>
+
+<td>
+
+    {{ $servicio->tecnico->name ?? 'N/A' }}
+
+</td>
+
+<td>
 
     <a href="{{ route('servicios-rapidos.show', $servicio) }}"
        class="btn btn-info btn-sm">
@@ -136,17 +144,7 @@
 
 </td>
 
-
-                            <a href="{{ route('servicios-rapidos.show', $servicio) }}"
-                               class="btn btn-info btn-sm">
-
-                                Ver
-
-                            </a>
-
-                        </td>
-
-                    </tr>
+</tr>
 
                     @empty
 

@@ -56,6 +56,60 @@
             </div>
         </div>
         @endif
+
+        @if(auth()->user()->rol == 'admin')
+
+<div class="col-md-3 mb-3">
+    <div class="card bg-info text-white shadow">
+        <div class="card-body">
+            <h5>Servicios Rápidos</h5>
+            <h2>{{ $totalServiciosRapidos }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3 mb-3">
+    <div class="card bg-success text-white shadow">
+        <div class="card-body">
+            <h5>Total Atenciones</h5>
+            <h2>{{ $totalAtenciones }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3 mb-3">
+    <div class="card bg-primary text-white shadow">
+        <div class="card-body">
+            <h5>Técnicos</h5>
+            <h2>{{ $totalTecnicos }}</h2>
+        </div>
+    </div>
+</div>
+
+@endif
+
+@if(auth()->user()->rol == 'tecnico')
+
+<div class="col-md-3 mb-3">
+    <div class="card bg-info text-white shadow">
+        <div class="card-body">
+            <h5>Servicios Rápidos</h5>
+            <h2>{{ $serviciosRapidos }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3 mb-3">
+    <div class="card bg-dark text-white shadow">
+        <div class="card-body">
+            <h5>Total Atenciones</h5>
+            <h2>{{ $totalAtenciones }}</h2>
+        </div>
+    </div>
+</div>
+
+@endif
+
     </div>
     <div class="card shadow mt-4">
         <div class="card-header">

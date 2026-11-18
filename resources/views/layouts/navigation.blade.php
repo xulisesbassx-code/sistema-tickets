@@ -61,7 +61,7 @@
                 >
                     Estadísticas
                 </x-nav-link>
-@endif
+                @endif
 
                 @if(auth()->user()->rol == 'admin')
 
@@ -73,6 +73,13 @@
                     </x-nav-link>
 
                 @endif
+                @if(auth()->user()->rol == 'admin')
+    <x-nav-link
+        :href="route('reportes')"
+        :active="request()->routeIs('reportes')">
+        Reportes
+    </x-nav-link>
+@endif
 
             </div>
 

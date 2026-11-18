@@ -96,23 +96,71 @@ class ServicioRapidoController extends Controller
         );
     }
 
-    public function update(
-        Request $request,
-        ServicioRapido $servicios_rapido
-    ) {
-        $servicios_rapido->update(
-            $request->all()
+   public function update(
+    Request $request,
+    ServicioRapido $servicios_rapido
+)
+{
+    $request->validate([
+
+        'nombre_usuario' => 'required',
+
+        'problema' => 'required',
+
+        'solucion' => 'required',
+
+        'resultado' => 'required'
+
+    ]);
+
+    $servicios_rapido->update([
+
+        'nombre_usuario' => $request->nombre_usuario,
+
+        'departamento' => $request->departamento,
+
+        'extension' => $request->extension,
+
+        'ubicacion' => $request->ubicacion,
+
+        'tipo_equipo' => $request->tipo_equipo,
+
+        'problema' => $request->problema,
+
+        'diagnostico' => $request->diagnostico,
+
+        'solucion' => $request->solucion,
+
+        'resultado' => $request->resultado,
+
+        'tiempo_invertido' => $request->tiempo_invertido
+
+    ]);
+
+    return redirect()
+        ->route('servicios-rapidos.index')
+        ->with(
+            'success',
+            'Servicio actualizado correctamente'
         );
+}
 
-        return redirect()
-            ->route('servicios-rapidos.index');
+   public function destroy(
+    ServicioRapido $servicios_rapido
+)
+{
+    if(auth()->user()->rol != 'admin')
+    {
+        abort(403);
     }
 
-    public function destroy(
-        ServicioRapido $servicios_rapido
-    ) {
-        $servicios_rapido->delete();
+    $servicios_rapido->delete();
 
-        return back();
-    }
+    return redirect()
+        ->route('servicios-rapidos.index')
+        ->with(
+            'success',
+            'Servicio eliminado correctamente'
+        );
+}
 }

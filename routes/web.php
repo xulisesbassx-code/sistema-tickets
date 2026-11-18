@@ -7,6 +7,8 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EstadisticaController;
+use App\Http\Controllers\ReporteController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,16 @@ Route::middleware(['auth'])->group(function () {
     // Comentarios
     Route::post('/tickets/{ticket}/comentarios', [ComentarioController::class, 'store'])
         ->name('comentarios.store');
+
+        Route::middleware(['auth'])->group(function () {
+//reportes
+
+    Route::get(
+        '/reportes',
+        [ReporteController::class, 'index']
+    )->name('reportes');
+
+});
 });
 
 /*

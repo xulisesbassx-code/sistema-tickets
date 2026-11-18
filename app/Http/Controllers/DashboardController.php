@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServicioRapido;
 use App\Models\Ticket;
 use App\Models\User;
 
@@ -30,6 +31,17 @@ class DashboardController extends Controller
 
             $totalUsuarios = User::count();
 
+            $totalTecnicos = User::where(
+                'rol',
+                'tecnico'
+            )->count();
+
+            $totalServiciosRapidos = ServicioRapido::count();
+
+            $totalAtenciones =
+                Ticket::count() +
+                $totalServiciosRapidos;
+
             $ultimosTickets = Ticket::with([
                     'usuario',
                     'tecnico'
@@ -45,6 +57,9 @@ class DashboardController extends Controller
                 'ticketsCerrados',
                 'ticketsCriticos',
                 'totalUsuarios',
+                'totalTecnicos',
+                'totalServiciosRapidos',
+                'totalAtenciones',
                 'ultimosTickets'
             ));
         }
@@ -56,27 +71,51 @@ class DashboardController extends Controller
         */
         if ($user->rol == 'tecnico') {
 
-            $ticketsNuevos = Ticket::where('tecnico_id', $user->id)
-                ->where('estado', 'nuevo')
-                ->count();
+            $ticketsNuevos = Ticket::where(
+                'tecnico_id',
+                $user->id
+            )
+            ->where('estado', 'nuevo')
+            ->count();
 
-            $ticketsProceso = Ticket::where('tecnico_id', $user->id)
-                ->where('estado', 'proceso')
-                ->count();
+            $ticketsProceso = Ticket::where(
+                'tecnico_id',
+                $user->id
+            )
+            ->where('estado', 'proceso')
+            ->count();
 
-            $ticketsResueltos = Ticket::where('tecnico_id', $user->id)
-                ->where('estado', 'resuelto')
-                ->count();
+            $ticketsResueltos = Ticket::where(
+                'tecnico_id',
+                $user->id
+            )
+            ->where('estado', 'resuelto')
+            ->count();
 
-            $ticketsCriticos = Ticket::where('tecnico_id', $user->id)
-                ->where('prioridad', 'critica')
-                ->count();
+            $ticketsCriticos = Ticket::where(
+                'tecnico_id',
+                $user->id
+            )
+            ->where('prioridad', 'critica')
+            ->count();
+
+            $serviciosRapidos = ServicioRapido::where(
+                'tecnico_id',
+                $user->id
+            )->count();
+
+            $totalAtenciones =
+                $ticketsResueltos +
+                $serviciosRapidos;
 
             $ultimosTickets = Ticket::with([
                     'usuario',
                     'tecnico'
                 ])
-                ->where('tecnico_id', $user->id)
+                ->where(
+                    'tecnico_id',
+                    $user->id
+                )
                 ->whereIn('estado', [
                     'nuevo',
                     'proceso',
@@ -92,6 +131,8 @@ class DashboardController extends Controller
                 'ticketsProceso',
                 'ticketsResueltos',
                 'ticketsCriticos',
+                'serviciosRapidos',
+                'totalAtenciones',
                 'ultimosTickets'
             ));
         }
@@ -101,30 +142,45 @@ class DashboardController extends Controller
         | USUARIO
         |--------------------------------------------------------------------------
         */
-        $ticketsNuevos = Ticket::where('user_id', $user->id)
-            ->where('estado', 'nuevo')
-            ->count();
+        $ticketsNuevos = Ticket::where(
+            'user_id',
+            $user->id
+        )
+        ->where('estado', 'nuevo')
+        ->count();
 
-        $ticketsProceso = Ticket::where('user_id', $user->id)
-            ->where('estado', 'proceso')
-            ->count();
+        $ticketsProceso = Ticket::where(
+            'user_id',
+            $user->id
+        )
+        ->where('estado', 'proceso')
+        ->count();
 
-        $ticketsResueltos = Ticket::where('user_id', $user->id)
-            ->whereIn('estado', [
-                'resuelto',
-                'cerrado'
-            ])
-            ->count();
+        $ticketsResueltos = Ticket::where(
+            'user_id',
+            $user->id
+        )
+        ->whereIn('estado', [
+            'resuelto',
+            'cerrado'
+        ])
+        ->count();
 
-        $ticketsCriticos = Ticket::where('user_id', $user->id)
-            ->where('prioridad', 'critica')
-            ->count();
+        $ticketsCriticos = Ticket::where(
+            'user_id',
+            $user->id
+        )
+        ->where('prioridad', 'critica')
+        ->count();
 
         $ultimosTickets = Ticket::with([
                 'usuario',
                 'tecnico'
             ])
-            ->where('user_id', $user->id)
+            ->where(
+                'user_id',
+                $user->id
+            )
             ->where('estado', '!=', 'cerrado')
             ->latest()
             ->take(5)
