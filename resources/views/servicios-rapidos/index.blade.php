@@ -1,169 +1,362 @@
+
 <x-app-layout>
 
-<div class="container mt-4">
+<style>
+    .quick-services-page {
+        background: #F2F5F9;
+        min-height: 100vh;
+        padding: 30px 0;
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .quick-services-title {
+        color: #0755A0;
+        font-weight: 700;
+        margin: 0;
+    }
 
-        <h2>
-            Servicios Rápidos
-        </h2>
+    .quick-services-card {
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #FFFFFF;
+    }
 
-        <a href="{{ route('servicios-rapidos.create') }}"
-           class="btn btn-success">
+    .quick-services-header {
+        background: #0755A0;
+        color: #FFFFFF;
+        padding: 18px 22px;
+        font-weight: 600;
+    }
 
-            Nuevo Servicio
+    .quick-services-body {
+        padding: 22px;
+    }
 
-        </a>
+    .btn-new-service {
+        background: #F36B21;
+        color: #FFFFFF;
+        border: none;
+        padding: 11px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
 
-    </div>
+    .btn-new-service:hover {
+        background: #D95712;
+        color: #FFFFFF;
+    }
 
-    <div class="card shadow">
+    .quick-services-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+        white-space: nowrap;
+    }
 
-        <div class="card-header">
+    .quick-services-table thead th {
+        background: #EAF2FA;
+        color: #0755A0;
+        font-weight: 700;
+        padding: 15px 12px;
+        border-bottom: 2px solid #0755A0;
+        vertical-align: middle;
+    }
 
-            Registro de Atenciones Directas
+    .quick-services-table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        color: #334155;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .quick-services-table tbody tr:hover {
+        background: #F2F7FC;
+    }
+
+    .service-id {
+        color: #0755A0;
+        font-weight: 700;
+    }
+
+    .service-status {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .status-resolved {
+        background: #DCFCE7;
+        color: #15803D;
+    }
+
+    .status-partial {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .status-pending {
+        background: #FEE2E2;
+        color: #B91C1C;
+    }
+
+    .btn-service-action {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        margin: 2px;
+    }
+
+    .btn-service-view {
+        background: #0755A0;
+        color: #FFFFFF;
+    }
+
+    .btn-service-view:hover {
+        background: #06447F;
+        color: #FFFFFF;
+    }
+
+    .btn-service-edit {
+        background: #FFF0E6;
+        color: #D95712;
+        border: 1px solid #F36B21;
+    }
+
+    .btn-service-edit:hover {
+        background: #F36B21;
+        color: #FFFFFF;
+    }
+
+    .btn-service-delete {
+        background: #FEE2E2;
+        color: #B91C1C;
+        border: 1px solid #FECACA;
+    }
+
+    .btn-service-delete:hover {
+        background: #DC2626;
+        color: #FFFFFF;
+    }
+
+    .service-empty {
+        padding: 35px !important;
+        text-align: center;
+        color: #64748B !important;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .quick-services-body {
+            padding: 14px;
+        }
+
+        .quick-services-heading {
+            align-items: flex-start !important;
+            gap: 15px;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="quick-services-page">
+
+    <div class="container">
+
+        <!-- ENCABEZADO -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4 quick-services-heading">
+
+            <div>
+                <h2 class="quick-services-title">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>
+                    Servicios Rápidos
+                </h2>
+
+                <p class="text-muted mb-0 mt-1">
+                    Registro y seguimiento de atenciones directas
+                </p>
+            </div>
+
+            <a href="{{ route('servicios-rapidos.create') }}"
+               class="btn btn-new-service">
+
+                <i class="bi bi-plus-circle me-1"></i>
+                Nuevo Servicio
+
+            </a>
 
         </div>
 
-        <div class="card-body">
+        <!-- TABLA DE SERVICIOS -->
 
-            <table class="table table-hover table-bordered">
+        <div class="card quick-services-card shadow-sm">
 
-                <thead class="table-dark">
+            <div class="quick-services-header">
 
-                    <tr>
+                <i class="bi bi-clipboard-data me-2"></i>
+                Registro de Atenciones Directas
 
-                        <th>ID</th>
+            </div>
 
-                        <th>Fecha</th>
+            <div class="quick-services-body">
 
-                        <th>Solicitante</th>
+                <div class="table-responsive">
 
-                        <th>Departamento</th>
+                    <table class="table quick-services-table mb-0">
 
-                        <th>Equipo</th>
+                        <thead>
 
-                        <th>Resultado</th>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Solicitante</th>
+                                <th>Departamento</th>
+                                <th>Equipo</th>
+                                <th>Resultado</th>
+                                <th>Técnico</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
 
-                        <th>Técnico</th>
+                        </thead>
 
-                        <th>Acciones</th>
+                        <tbody>
 
-                    </tr>
+                            @forelse($servicios as $servicio)
 
-                </thead>
+                                <tr>
 
-                <tbody>
+                                    <td class="service-id">
+                                        #{{ $servicio->id }}
+                                    </td>
 
-                    @forelse($servicios as $servicio)
+                                    <td>
+                                        {{ $servicio->created_at->format('d/m/Y H:i') }}
+                                    </td>
 
-                    <tr>
+                                    <td class="fw-semibold">
+                                        {{ $servicio->nombre_usuario }}
+                                    </td>
 
-                        <td>
-                            {{ $servicio->id }}
-                        </td>
+                                    <td>
+                                        {{ $servicio->departamento }}
+                                    </td>
 
-                        <td>
-                            {{ $servicio->created_at->format('d/m/Y H:i') }}
-                        </td>
+                                    <td>
+                                        {{ $servicio->tipo_equipo }}
+                                    </td>
 
-                        <td>
-                            {{ $servicio->nombre_usuario }}
-                        </td>
+                                    <td>
 
-                        <td>
-                            {{ $servicio->departamento }}
-                        </td>
+                                        @if($servicio->resultado == 'resuelto')
 
-                        <td>
-                            {{ $servicio->tipo_equipo }}
-                        </td>
+                                            <span class="service-status status-resolved">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Resuelto
+                                            </span>
 
-                       <td>
+                                        @elseif($servicio->resultado == 'parcial')
 
-    @if($servicio->resultado == 'resuelto')
+                                            <span class="service-status status-partial">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                Parcial
+                                            </span>
 
-        <span class="badge bg-success">
-            Resuelto
-        </span>
+                                        @else
 
-    @elseif($servicio->resultado == 'parcial')
+                                            <span class="service-status status-pending">
+                                                <i class="bi bi-clock me-1"></i>
+                                                Pendiente
+                                            </span>
 
-        <span class="badge bg-warning text-dark">
-            Parcial
-        </span>
+                                        @endif
 
-    @else
+                                    </td>
 
-        <span class="badge bg-danger">
-            Pendiente
-        </span>
+                                    <td>
+                                        {{ $servicio->tecnico->name ?? 'N/A' }}
+                                    </td>
 
-    @endif
+                                    <td class="text-center">
 
-</td>
+                                        <a href="{{ route('servicios-rapidos.show', $servicio) }}"
+                                           class="btn-service-action btn-service-view">
 
-<td>
+                                            <i class="bi bi-eye me-1"></i>
+                                            Ver
 
-    {{ $servicio->tecnico->name ?? 'N/A' }}
+                                        </a>
 
-</td>
+                                        <a href="{{ route('servicios-rapidos.edit', $servicio) }}"
+                                           class="btn-service-action btn-service-edit">
 
-<td>
+                                            <i class="bi bi-pencil-square me-1"></i>
+                                            Editar
 
-    <a href="{{ route('servicios-rapidos.show', $servicio) }}"
-       class="btn btn-info btn-sm">
-        Ver
-    </a>
+                                        </a>
 
-    <a href="{{ route('servicios-rapidos.edit', $servicio) }}"
-       class="btn btn-warning btn-sm">
-        Editar
-    </a>
+                                        @if(auth()->user()->rol == 'admin')
 
-    @if(auth()->user()->rol == 'admin')
+                                            <form action="{{ route('servicios-rapidos.destroy', $servicio) }}"
+                                                  method="POST"
+                                                  style="display:inline;">
 
-    <form action="{{ route('servicios-rapidos.destroy', $servicio) }}"
-          method="POST"
-          style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
 
-        @csrf
-        @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn-service-action btn-service-delete"
+                                                        onclick="return confirm('¿Eliminar este servicio?')">
 
-        <button type="submit"
-                class="btn btn-danger btn-sm"
-                onclick="return confirm('¿Eliminar este servicio?')">
+                                                    <i class="bi bi-trash me-1"></i>
+                                                    Eliminar
 
-            Eliminar
+                                                </button>
 
-        </button>
+                                            </form>
 
-    </form>
+                                        @endif
 
-    @endif
+                                    </td>
 
-</td>
+                                </tr>
 
-</tr>
+                            @empty
 
-                    @empty
+                                <tr>
 
-                    <tr>
+                                    <td colspan="8" class="service-empty">
 
-                        <td colspan="8"
-                            class="text-center">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
 
-                            No hay servicios registrados.
+                                        <strong>No hay servicios registrados.</strong>
 
-                        </td>
+                                        <p class="mb-0 mt-1">
+                                            Los servicios rápidos aparecerán aquí cuando sean registrados.
+                                        </p>
 
-                    </tr>
+                                    </td>
 
-                    @endforelse
+                                </tr>
 
-                </tbody>
+                            @endforelse
 
-            </table>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
 

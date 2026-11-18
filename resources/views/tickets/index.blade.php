@@ -1,49 +1,320 @@
+
 <x-app-layout>
 
-<div class="container mt-4">
+<style>
+    .tickets-page {
+        padding: 30px 0 45px;
+        color: #243247;
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .tickets-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
 
-        <h2>
+    .tickets-heading h2 {
+        color: #17365d;
+        font-size: 27px;
+        font-weight: 800;
+        margin: 0 0 5px;
+    }
+
+    .tickets-heading p {
+        color: #7b8797;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .btn-new-ticket {
+        background: #0755a0;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 9px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .btn-new-ticket:hover {
+        background: #063e78;
+        color: white;
+    }
+
+    .tickets-panel {
+        background: white;
+        border-radius: 13px;
+        border: 1px solid #e4eaf1;
+        box-shadow: 0 5px 20px rgba(30, 50, 80, .06);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .panel-title {
+        padding: 19px 23px;
+        border-bottom: 1px solid #edf0f4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .panel-title h5 {
+        font-size: 16px;
+        font-weight: 750;
+        color: #17365d;
+        margin: 0;
+    }
+
+    .panel-content {
+        padding: 22px;
+    }
+
+    .tickets-page label {
+        font-size: 13px;
+        font-weight: 650;
+        color: #44546a;
+        margin-bottom: 7px;
+    }
+
+    .tickets-page .form-control,
+    .tickets-page .form-select {
+        border: 1px solid #dce3eb;
+        border-radius: 8px;
+        min-height: 43px;
+        font-size: 13px;
+        box-shadow: none;
+    }
+
+    .tickets-page .form-control:focus,
+    .tickets-page .form-select:focus {
+        border-color: #0755a0;
+        box-shadow: 0 0 0 3px rgba(7,85,160,.10);
+    }
+
+    .btn-search-ticket {
+        background: #0755a0;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 17px;
+        font-size: 13px;
+        font-weight: 700;
+        min-height: 42px;
+    }
+
+    .btn-search-ticket:hover {
+        background: #063e78;
+        color: white;
+    }
+
+    .btn-reset-ticket {
+        background: #edf1f5;
+        color: #45566c;
+        border: 1px solid #dce3eb;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 13px;
+        text-decoration: none;
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-reset-ticket:hover {
+        background: #dfe6ee;
+        color: #26384d;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .tickets-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .tickets-table thead th {
+        background: #f1f5f9;
+        color: #52647b;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        font-weight: 800;
+        padding: 16px;
+        border-bottom: 1px solid #e1e8f0;
+    }
+
+    .tickets-table tbody td {
+        padding: 16px;
+        font-size: 13px;
+        color: #46566c;
+        border-bottom: 1px solid #edf1f5;
+        vertical-align: middle;
+    }
+
+    .tickets-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .tickets-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .ticket-id {
+        color: #0755a0;
+        font-weight: 800;
+    }
+
+    .ticket-name {
+        color: #263d59;
+        font-weight: 700;
+        white-space: normal;
+        min-width: 150px;
+    }
+
+    .ticket-badge {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .priority-critica { background: #fee2e2; color: #b42318; }
+    .priority-alta { background: #ffedd5; color: #a34c00; }
+    .priority-media { background: #dbeafe; color: #0755a0; }
+    .priority-baja { background: #dcfce7; color: #167342; }
+
+    .status-nuevo { background: #dbeafe; color: #0755a0; }
+    .status-proceso { background: #ffedd5; color: #a34c00; }
+    .status-revision { background: #cffafe; color: #08718d; }
+    .status-resuelto { background: #dcfce7; color: #167342; }
+    .status-cerrado { background: #e9edf2; color: #596579; }
+
+    .ticket-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .ticket-actions .btn {
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 11px;
+    }
+
+    .btn-ticket-view {
+        background: #e3efff;
+        color: #0755a0;
+        border: 1px solid #cbdff8;
+    }
+
+    .btn-ticket-view:hover {
+        background: #0755a0;
+        color: white;
+    }
+
+    .btn-ticket-edit {
+        background: #fff0d9;
+        color: #9a5800;
+        border: 1px solid #f6d9aa;
+    }
+
+    .btn-ticket-edit:hover {
+        background: #f36b21;
+        color: white;
+    }
+
+    .btn-ticket-close {
+        background: #fee2e2;
+        color: #b42318;
+        border: 1px solid #fecaca;
+    }
+
+    .btn-ticket-close:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .empty-tickets {
+        text-align: center;
+        padding: 45px 15px !important;
+        color: #8793a3 !important;
+    }
+
+    @media(max-width:768px) {
+        .tickets-page {
+            padding: 20px 0;
+        }
+
+        .tickets-heading h2 {
+            font-size: 23px;
+        }
+
+        .panel-content {
+            padding: 15px;
+        }
+    }
+</style>
+
+<div class="container tickets-page">
+
+    <!-- ENCABEZADO -->
+
+    <div class="tickets-heading">
+
+        <div>
+            <h2>
+                @if(auth()->user()->rol == 'usuario')
+                    Mis Solicitudes
+                @else
+                    Gestión de Tickets
+                @endif
+            </h2>
+
+            <p>
+                @if(auth()->user()->rol == 'usuario')
+                    Consulta y administra tus solicitudes de soporte.
+                @else
+                    Administra las incidencias y solicitudes de soporte técnico.
+                @endif
+            </p>
+        </div>
+
+        <a href="{{ route('tickets.create') }}" class="btn-new-ticket">
             @if(auth()->user()->rol == 'usuario')
-                Mis Solicitudes
+                + Solicitar Soporte
             @else
-                Gestión de Tickets
+                + Nuevo Ticket
             @endif
-        </h2>
-
-        <a href="{{ route('tickets.create') }}"
-           class="btn btn-primary">
-
-            @if(auth()->user()->rol == 'usuario')
-                Solicitar Soporte
-            @else
-                Nuevo Ticket
-            @endif
-
         </a>
 
     </div>
 
-    @if(auth()->user()->rol != 'usuario')
-
     <!-- FILTROS -->
 
-    <div class="card shadow mb-4">
+    @if(auth()->user()->rol != 'usuario')
 
-        <div class="card-header">
-            Buscar y Filtrar
+    <div class="tickets-panel">
+
+        <div class="panel-title">
+            <h5>Buscar y filtrar tickets</h5>
         </div>
 
-        <div class="card-body">
+        <div class="panel-content">
 
-            <form method="GET"
-                  action="{{ route('tickets.index') }}">
+            <form method="GET" action="{{ route('tickets.index') }}">
 
                 <div class="row">
 
                     <div class="col-md-4 mb-3">
-
                         <label>Título</label>
 
                         <input
@@ -53,87 +324,46 @@
                             value="{{ request('titulo') }}"
                             placeholder="Buscar ticket..."
                         >
-
                     </div>
 
                     <div class="col-md-3 mb-3">
-
                         <label>Estado</label>
 
                         <select name="estado" class="form-select">
 
                             <option value="">Todos</option>
 
-                            <option value="nuevo"
-                                {{ request('estado') == 'nuevo' ? 'selected' : '' }}>
-                                Nuevo
-                            </option>
-
-                            <option value="proceso"
-                                {{ request('estado') == 'proceso' ? 'selected' : '' }}>
-                                En Proceso
-                            </option>
-
-                            <option value="revision"
-                                {{ request('estado') == 'revision' ? 'selected' : '' }}>
-                                Revisión
-                            </option>
-
-                            <option value="resuelto"
-                                {{ request('estado') == 'resuelto' ? 'selected' : '' }}>
-                                Resuelto
-                            </option>
-
-                            <option value="cerrado"
-                                {{ request('estado') == 'cerrado' ? 'selected' : '' }}>
-                                Cerrado
-                            </option>
+                            <option value="nuevo" {{ request('estado') == 'nuevo' ? 'selected' : '' }}>Nuevo</option>
+                            <option value="proceso" {{ request('estado') == 'proceso' ? 'selected' : '' }}>En Proceso</option>
+                            <option value="revision" {{ request('estado') == 'revision' ? 'selected' : '' }}>Revisión</option>
+                            <option value="resuelto" {{ request('estado') == 'resuelto' ? 'selected' : '' }}>Resuelto</option>
+                            <option value="cerrado" {{ request('estado') == 'cerrado' ? 'selected' : '' }}>Cerrado</option>
 
                         </select>
-
                     </div>
 
                     <div class="col-md-3 mb-3">
-
                         <label>Prioridad</label>
 
                         <select name="prioridad" class="form-select">
 
                             <option value="">Todas</option>
 
-                            <option value="baja"
-                                {{ request('prioridad') == 'baja' ? 'selected' : '' }}>
-                                Baja
-                            </option>
-
-                            <option value="media"
-                                {{ request('prioridad') == 'media' ? 'selected' : '' }}>
-                                Media
-                            </option>
-
-                            <option value="alta"
-                                {{ request('prioridad') == 'alta' ? 'selected' : '' }}>
-                                Alta
-                            </option>
-
-                            <option value="critica"
-                                {{ request('prioridad') == 'critica' ? 'selected' : '' }}>
-                                Crítica
-                            </option>
+                            <option value="baja" {{ request('prioridad') == 'baja' ? 'selected' : '' }}>Baja</option>
+                            <option value="media" {{ request('prioridad') == 'media' ? 'selected' : '' }}>Media</option>
+                            <option value="alta" {{ request('prioridad') == 'alta' ? 'selected' : '' }}>Alta</option>
+                            <option value="critica" {{ request('prioridad') == 'critica' ? 'selected' : '' }}>Crítica</option>
 
                         </select>
-
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end mb-3">
+                    <div class="col-md-2 mb-3 d-flex align-items-end gap-2">
 
-                        <button type="submit"
-                                class="btn btn-success me-2">
+                        <button type="submit" class="btn-search-ticket">
                             Buscar
                         </button>
 
-                        <a href="{{ route('tickets.index') }}"
-                           class="btn btn-secondary">
+                        <a href="{{ route('tickets.index') }}" class="btn-reset-ticket">
                             Limpiar
                         </a>
 
@@ -151,26 +381,24 @@
 
     <!-- TABLA -->
 
-    <div class="card shadow">
+    <div class="tickets-panel">
 
-        <div class="card-header">
-
-            @if(auth()->user()->rol == 'usuario')
-                Mis Solicitudes
-            @else
-                Lista de Tickets
-            @endif
-
+        <div class="panel-title">
+            <h5>
+                @if(auth()->user()->rol == 'usuario')
+                    Mis Solicitudes
+                @else
+                    Lista de Tickets
+                @endif
+            </h5>
         </div>
 
-        <div class="card-body">
+        <div class="table-responsive">
 
-            <table class="table table-hover table-bordered">
+            <table class="tickets-table">
 
-                <thead class="table-dark">
-
+                <thead>
                     <tr>
-
                         <th>ID</th>
                         <th>Título</th>
                         <th>Categoría</th>
@@ -183,9 +411,7 @@
                         @endif
 
                         <th>Acciones</th>
-
                     </tr>
-
                 </thead>
 
                 <tbody>
@@ -194,25 +420,33 @@
 
                     <tr>
 
-                        <td>{{ $ticket->id }}</td>
+                        <td>
+                            <span class="ticket-id">#{{ $ticket->id }}</span>
+                        </td>
 
-                        <td>{{ $ticket->titulo }}</td>
+                        <td>
+                            <div class="ticket-name">
+                                {{ $ticket->titulo }}
+                            </div>
+                        </td>
 
-                        <td>{{ ucfirst($ticket->categoria) }}</td>
+                        <td>
+                            {{ ucfirst($ticket->categoria) }}
+                        </td>
 
                         <td>
 
                             @if($ticket->prioridad == 'critica')
-                                <span class="badge bg-danger">Crítica</span>
+                                <span class="ticket-badge priority-critica">Crítica</span>
 
                             @elseif($ticket->prioridad == 'alta')
-                                <span class="badge bg-warning text-dark">Alta</span>
+                                <span class="ticket-badge priority-alta">Alta</span>
 
                             @elseif($ticket->prioridad == 'media')
-                                <span class="badge bg-primary">Media</span>
+                                <span class="ticket-badge priority-media">Media</span>
 
                             @else
-                                <span class="badge bg-success">Baja</span>
+                                <span class="ticket-badge priority-baja">Baja</span>
                             @endif
 
                         </td>
@@ -220,19 +454,19 @@
                         <td>
 
                             @if($ticket->estado == 'nuevo')
-                                <span class="badge bg-primary">Nuevo</span>
+                                <span class="ticket-badge status-nuevo">Nuevo</span>
 
                             @elseif($ticket->estado == 'proceso')
-                                <span class="badge bg-warning text-dark">En Proceso</span>
+                                <span class="ticket-badge status-proceso">En Proceso</span>
 
                             @elseif($ticket->estado == 'revision')
-                                <span class="badge bg-info">Revisión</span>
+                                <span class="ticket-badge status-revision">Revisión</span>
 
                             @elseif($ticket->estado == 'resuelto')
-                                <span class="badge bg-success">Resuelto</span>
+                                <span class="ticket-badge status-resuelto">Resuelto</span>
 
                             @else
-                                <span class="badge bg-secondary">Cerrado</span>
+                                <span class="ticket-badge status-cerrado">Cerrado</span>
                             @endif
 
                         </td>
@@ -249,56 +483,55 @@
 
                         @endif
 
-                    <td>
+                        <td>
 
-    <a href="{{ route('tickets.show', $ticket) }}"
-       class="btn btn-info btn-sm">
-        Ver
-    </a>
+                            <div class="ticket-actions">
 
-    @if(auth()->user()->rol != 'usuario')
+                                <a href="{{ route('tickets.show', $ticket) }}"
+                                   class="btn btn-ticket-view">
+                                    Ver
+                                </a>
 
-        <a href="{{ route('tickets.edit', $ticket) }}"
-           class="btn btn-warning btn-sm">
-            Editar
-        </a>
+                                @if(auth()->user()->rol != 'usuario')
 
-    @endif
+                                    <a href="{{ route('tickets.edit', $ticket) }}"
+                                       class="btn btn-ticket-edit">
+                                        Editar
+                                    </a>
 
-    @if(auth()->user()->rol == 'admin')
+                                @endif
 
-        <form action="{{ route('tickets.destroy', $ticket) }}"
-              method="POST"
-              style="display:inline;">
+                                @if(auth()->user()->rol == 'admin')
 
-            @csrf
-            @method('DELETE')
+                                    <form action="{{ route('tickets.destroy', $ticket) }}"
+                                          method="POST"
+                                          style="display:inline;">
 
-            <button type="submit"
-                    class="btn btn-danger btn-sm"
-                    onclick="return confirm('¿Cerrar este ticket?')">
-                Cerrar
-            </button>
+                                        @csrf
+                                        @method('DELETE')
 
-        </form>
+                                        <button type="submit"
+                                                class="btn btn-ticket-close"
+                                                onclick="return confirm('¿Cerrar este ticket?')">
+                                            Cerrar
+                                        </button>
 
-    @endif
+                                    </form>
 
-</td>
+                                @endif
+
+                            </div>
+
+                        </td>
 
                     </tr>
 
                     @empty
 
                     <tr>
-
-                        <td colspan="8"
-                            class="text-center">
-
+                        <td colspan="8" class="empty-tickets">
                             No se encontraron tickets.
-
                         </td>
-
                     </tr>
 
                     @endforelse

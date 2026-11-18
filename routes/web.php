@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -8,7 +9,7 @@ use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EstadisticaController;
 use App\Http\Controllers\ReporteController;
-
+use App\Http\Controllers\ServicioRapidoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,12 +23,13 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Rutas protegidas para cualquier usuario autenticado
+| Rutas protegidas para usuarios autenticados
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth'])->group(function () {
 
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
@@ -48,33 +50,45 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tickets/{ticket}/comentarios', [ComentarioController::class, 'store'])
         ->name('comentarios.store');
 
-        Route::middleware(['auth'])->group(function () {
-//reportes
+    // Servicios rápidos
+    Route::resource(
+        'servicios-rapidos',
+        ServicioRapidoController::class
+    );
 
-    Route::get(
-        '/reportes',
-        [ReporteController::class, 'index']
-    )->name('reportes');
-
-});
 });
 
 /*
 |--------------------------------------------------------------------------
-| SOLO ADMIN
+| SOLO ADMINISTRADORES
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
+    // Usuarios
     Route::resource('usuarios', UsuarioController::class);
 
+    // Estadísticas
     Route::get('/estadisticas', [EstadisticaController::class, 'index'])
         ->name('estadisticas');
+
+    // Reportes
+    Route::get('/reportes', [ReporteController::class, 'index'])
+        ->name('reportes');
+
+    // Exportar Excel
+    Route::get('/reportes/excel', [ReporteController::class, 'exportarExcel'])
+        ->name('reportes.excel');
+
+    // Exportar PDF
+    Route::get('/reportes/pdf', [ReporteController::class, 'exportarPdf'])
+        ->name('reportes.pdf');
 
     Route::get('/admin', function () {
         return 'Panel Admin';
     });
+
 });
 
 /*
@@ -91,6 +105,7 @@ Route::middleware(['auth', 'role:tecnico'])->group(function () {
     Route::get('/tecnico', function () {
         return 'Panel Técnico';
     });
+
 });
 
 /*
@@ -104,18 +119,7 @@ Route::middleware(['auth', 'role:usuario'])->group(function () {
     Route::get('/usuario', function () {
         return 'Panel Usuario';
     });
+
 });
 
 require __DIR__ . '/auth.php';
-
-
-/*
-|--------------------------------------------------------------------------
-| SOLO SERVICIOS RÁPIDOS
-|--------------------------------------------------------------------------
-*/
-
-Route::resource(
-    'servicios-rapidos',
-    App\Http\Controllers\ServicioRapidoController::class
-);
